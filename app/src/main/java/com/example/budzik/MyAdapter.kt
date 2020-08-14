@@ -99,15 +99,22 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
         val db = dbHelper.writableDatabase
         val value = ContentValues()
         value.put(TableInfo.TABLE_COLUMN_IS_ACTIVE,"true")
-        val calendar: Calendar = Calendar.getInstance()
+        val now = Calendar.getInstance()
+        var calendar: Calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, cut(timeView.text.toString())[0].toInt())
         calendar.set(Calendar.MINUTE, cut(timeView.text.toString())[1].toInt())
         calendar.set(Calendar.SECOND, 0)
+        val days = note[position.minus(1)].days
+        if(days.equals("")){
 
-       // alarm.setAlarm(calendar,context)
-        alarm.setOneTimeAlarm(calendar,context,position.toString())
-        Toast.makeText(context, "ON ${cut(timeView.text.toString())[0]}:" +
-                cut(timeView.text.toString())[1], Toast.LENGTH_SHORT).show()
+            if(calendar.timeInMillis < now.timeInMillis) calendar.add(Calendar.DAY_OF_YEAR,1)
+            alarm.setOneTimeAlarm(calendar,context,position.toString())
+        }else{
+            calendar = getNextAlarmCalendar(position-1)
+            alarm.setAlarm(calendar,context)
+        }
+        val differenceInMillis = calendar.timeInMillis - now.timeInMillis
+        Toast.makeText(context, "Alarm włączy się za ${(differenceInMillis/3600000)} godzin i ${((differenceInMillis/60000)%60)+1} minut", Toast.LENGTH_LONG).show()
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
     }
     fun alarmOff(position: Int, alarm: AlarmM){
@@ -116,8 +123,23 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
         val value = ContentValues()
         value.put(TableInfo.TABLE_COLUMN_IS_ACTIVE,"false")
         alarm.cancelAlarm()
-        Toast.makeText(context, "OFF", Toast.LENGTH_SHORT).show()
+       // Toast.makeText(context, "OFF", Toast.LENGTH_SHORT).show()
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
+    }
+    fun getNextAlarmCalendar(position: Int): Calendar {
+        val now = Calendar.getInstance()
+        val pattern = note[position].days
+        val time = note[position].time
+        val days = arrayListOf<Calendar>()
+        pattern.toCharArray().forEach {
+            val c = Calendar.getInstance()
+            c.set(Calendar.HOUR_OF_DAY,cut(time)[0].toInt())
+            c.set(Calendar.MINUTE,cut(time)[1].toInt())
+            c.set(Calendar.DAY_OF_WEEK, it.toInt())
+            if(c.timeInMillis < now.timeInMillis) c.add(Calendar.DAY_OF_YEAR,7)
+            days.add(c)
+        }
+        return days.min()!!
     }
     }
 

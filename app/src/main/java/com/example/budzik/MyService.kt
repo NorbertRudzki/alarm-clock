@@ -54,6 +54,7 @@ class MyService: Service() {
 
     override fun onDestroy() {
         mediaPlayer.stop()
+        v.cancel()
         Log.d("ondestroy","ondestroy")
         super.onDestroy()
     }
