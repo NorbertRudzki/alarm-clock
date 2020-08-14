@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 //todo wybor dzwieku do danego alarmu
 //todo nagrywanie mikrofonem i dodawanie do listy dzwiekow do wyboru
 //todo nie ustawiaj budzika, jezeli jest z przeszlosci (w jednorazowym chyba ustaw na jutro)
-//todo gdy usuniesz z listy aktywny budzik - wylacz go
+
 class MainActivity : AppCompatActivity() {
     private val db_data = ArrayList<Table>()
 

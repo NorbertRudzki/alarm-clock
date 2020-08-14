@@ -9,8 +9,14 @@ import android.util.Log
 class AlarmReciver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("alarmreceiver","onReceive")
+
+
+
         val intentService = Intent(context, MyService::class.java)
+        if(intent?.hasExtra("oneTime")!!){
+            Log.d("AlarmReceiverOneTime","jest")
+            intentService.putExtra("oneTime",intent.getStringExtra("oneTime"))
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context!!.startForegroundService(intentService)
         } else {

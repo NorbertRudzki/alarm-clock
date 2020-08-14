@@ -26,6 +26,18 @@ class AlarmM {
             alarmIntent
         )
     }
+    fun setOneTimeAlarm(calendar:Calendar,context: Context, ID: String){
+        alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmIntent = Intent(context, AlarmReciver::class.java).putExtra("oneTime",ID).let { intent ->
+            PendingIntent.getBroadcast(context, requestCode++, intent, 0)
+        }
+        //alarm raz
+        alarmMgr?.setExact(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            alarmIntent
+        )
+    }
 
     fun cancelAlarm(){
         alarmMgr?.cancel(alarmIntent)

@@ -1,6 +1,7 @@
 package com.example.budzik
 
 import android.app.*
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -9,6 +10,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.BaseColumns
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -20,10 +22,19 @@ class MyService: Service() {
     }
     private lateinit var v: Vibrator
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         mediaPlayer = MediaPlayer.create(applicationContext,R.raw.buzzer)
         v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if(!mediaPlayer.isPlaying){
             val notificationIntent = Intent(this, AlarmClockActivity::class.java)
+            if(intent?.hasExtra("oneTime")!!){
+                val dbHelper = DataBaseHelper(applicationContext)
+                val db = dbHelper.writableDatabase
+                val value = ContentValues()
+                value.put(TableInfo.TABLE_COLUMN_IS_ACTIVE,"false")
+                Log.d("id",intent.getStringExtra("oneTime")!!)
+                db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(intent.getStringExtra("oneTime")))
+            }
             val pendingIntent = PendingIntent.getActivity(this,0,notificationIntent,0)
 
             val notification = NotificationCompat.Builder(this, App.CHANNEL_ID)

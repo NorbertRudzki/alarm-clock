@@ -25,6 +25,8 @@ class AlarmClockActivity: AppCompatActivity() {
             c.add(Calendar.MINUTE,1)
             alarmManager.setAlarm(c, applicationContext)
         }
+
+
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 MyService.mediaPlayer.setVolume((progress/10.0).toFloat(),
@@ -43,5 +45,10 @@ class AlarmClockActivity: AppCompatActivity() {
         }
 
         )
+    }
+
+    override fun onBackPressed() {
+        startActivity(Intent(applicationContext,MainActivity::class.java))
+        super.onBackPressed()
     }
 }

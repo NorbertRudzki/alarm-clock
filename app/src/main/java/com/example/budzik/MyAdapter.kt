@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -85,8 +86,6 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
                     }
             }
 
-
-
     }
 
     fun cut(str:String): List<String> {
@@ -105,8 +104,8 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
         calendar.set(Calendar.MINUTE, cut(timeView.text.toString())[1].toInt())
         calendar.set(Calendar.SECOND, 0)
 
-        alarm.setAlarm(calendar,context)
-
+       // alarm.setAlarm(calendar,context)
+        alarm.setOneTimeAlarm(calendar,context,position.toString())
         Toast.makeText(context, "ON ${cut(timeView.text.toString())[0]}:" +
                 cut(timeView.text.toString())[1], Toast.LENGTH_SHORT).show()
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
