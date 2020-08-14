@@ -100,13 +100,15 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
         val value = ContentValues()
         value.put(TableInfo.TABLE_COLUMN_IS_ACTIVE,"true")
         val now = Calendar.getInstance()
+
         var calendar: Calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, cut(timeView.text.toString())[0].toInt())
         calendar.set(Calendar.MINUTE, cut(timeView.text.toString())[1].toInt())
         calendar.set(Calendar.SECOND, 0)
         val days = note[position.minus(1)].days
         if(days.equals("")){
-
+            Log.d("now",now.timeInMillis.toString())
+            Log.d("ustawione",calendar.timeInMillis.toString())
             if(calendar.timeInMillis < now.timeInMillis) calendar.add(Calendar.DAY_OF_YEAR,1)
             alarm.setOneTimeAlarm(calendar,context,position.toString())
         }else{
@@ -114,7 +116,7 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
             alarm.setAlarm(calendar,context)
         }
         val differenceInMillis = calendar.timeInMillis - now.timeInMillis
-        Toast.makeText(context, "Alarm włączy się za ${(differenceInMillis/3600000)} godzin i ${((differenceInMillis/60000)%60)+1} minut", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "Alarm włączy się za ${(differenceInMillis/3600000)+1} godzin i ${(((differenceInMillis/60000)+1)%60)} minut", Toast.LENGTH_LONG).show()
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
     }
     fun alarmOff(position: Int, alarm: AlarmM){
@@ -127,17 +129,21 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
     }
     fun getNextAlarmCalendar(position: Int): Calendar {
+
         val now = Calendar.getInstance()
         val pattern = note[position].days
         val time = note[position].time
         val days = arrayListOf<Calendar>()
         pattern.toCharArray().forEach {
+            Log.d("it",it.toString())
             val c = Calendar.getInstance()
             c.set(Calendar.HOUR_OF_DAY,cut(time)[0].toInt())
             c.set(Calendar.MINUTE,cut(time)[1].toInt())
-            c.set(Calendar.DAY_OF_WEEK, it.toInt())
+            c.set(Calendar.DAY_OF_WEEK, it.toInt().plus(1))
+            c.set(Calendar.SECOND,0)
             if(c.timeInMillis < now.timeInMillis) c.add(Calendar.DAY_OF_YEAR,7)
             days.add(c)
+            Log.d("dzientygodnia",c.get(Calendar.DAY_OF_WEEK).toString())
         }
         return days.min()!!
     }

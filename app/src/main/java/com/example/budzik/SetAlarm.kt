@@ -111,6 +111,7 @@ class SetAlarm: AppCompatActivity() {
         if(pt_switch.isChecked) pattern+="${Calendar.FRIDAY}"
         if(sb_switch.isChecked) pattern+="${Calendar.SATURDAY}"
 
+
         Log.d("pattern",pattern)
         return pattern
     }
