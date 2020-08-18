@@ -19,14 +19,17 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
 import java.util.jar.Manifest
+import kotlin.coroutines.CoroutineContext
 
 class MyService: Service() {
 
     companion object{
         lateinit var mediaPlayer: MediaPlayer
     }
+    private val scope = CoroutineScope(Job() + Dispatchers.Default)
     private lateinit var v: Vibrator
     private lateinit var cam: CameraManager
     private var permissionGranded = false
@@ -59,12 +62,21 @@ class MyService: Service() {
             mediaPlayer.isLooping = true
             vibrate(v)
             if(permissionGranded){
-                try{
-                    cam.setTorchMode(cam.cameraIdList[0],true)
-                }catch (e: IllegalArgumentException){
-                    Log.d("torchException",e.message!!)
+
+                    scope.launch {
+                        while(true){
+                            try {
+                                cam.setTorchMode(cam.cameraIdList[0], true)
+                                delay(500)
+                                cam.setTorchMode(cam.cameraIdList[0], false)
+                                delay(500)
+                            }catch (e: IllegalArgumentException){
+                                Log.d("torchException",e.message!!)
+                            }
+                        }
+                    }
                 }
-            }
+
 
 
             startForeground(1, notification)
@@ -77,6 +89,7 @@ class MyService: Service() {
         mediaPlayer.stop()
         v.cancel()
         if(permissionGranded){
+            scope.cancel()
             try{
                 cam.setTorchMode(cam.cameraIdList[0],false)
             }catch (e: IllegalArgumentException){
