@@ -4,7 +4,9 @@ import android.app.*
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.hardware.camera2.CameraManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
@@ -12,8 +14,13 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.BaseColumns
 import android.util.Log
+import androidx.activity.result.ActivityResultCallback
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import java.lang.IllegalArgumentException
+import java.util.jar.Manifest
 
 class MyService: Service() {
 
@@ -21,7 +28,13 @@ class MyService: Service() {
         lateinit var mediaPlayer: MediaPlayer
     }
     private lateinit var v: Vibrator
+    private lateinit var cam: CameraManager
+    private var permissionGranded = false
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if(ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+            permissionGranded = true
+            cam = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        }
 
         mediaPlayer = MediaPlayer.create(applicationContext,R.raw.buzzer)
         v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -45,6 +58,14 @@ class MyService: Service() {
             mediaPlayer.start()
             mediaPlayer.isLooping = true
             vibrate(v)
+            if(permissionGranded){
+                try{
+                    cam.setTorchMode(cam.cameraIdList[0],true)
+                }catch (e: IllegalArgumentException){
+                    Log.d("torchException",e.message!!)
+                }
+            }
+
 
             startForeground(1, notification)
         }
@@ -55,6 +76,13 @@ class MyService: Service() {
     override fun onDestroy() {
         mediaPlayer.stop()
         v.cancel()
+        if(permissionGranded){
+            try{
+                cam.setTorchMode(cam.cameraIdList[0],false)
+            }catch (e: IllegalArgumentException){
+                Log.d("torchException",e.message!!)
+            }
+        }
         Log.d("ondestroy","ondestroy")
         super.onDestroy()
     }

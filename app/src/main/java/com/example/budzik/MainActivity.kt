@@ -7,12 +7,11 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
-//todo rozroznic, czy jest to budzik jednorazowy, czy powtarzajacy sie, jak jednorazowy to dezaktywacja alarmu po wykonaniu
-//todo obsluga powtarzania sie budzika w dane dni
+
 //todo wybor dzwieku do danego alarmu
 //todo nagrywanie mikrofonem i dodawanie do listy dzwiekow do wyboru
-//todo nie ustawiaj budzika, jezeli jest z przeszlosci (w jednorazowym chyba ustaw na jutro)
-
+//todo latarka
+//todo sensory
 class MainActivity : AppCompatActivity() {
     private val db_data = ArrayList<Table>()
 

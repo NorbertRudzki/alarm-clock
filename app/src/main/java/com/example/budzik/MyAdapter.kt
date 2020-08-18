@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_alarm.view.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Table>):RecyclerView.Adapter<MyViewHolder>(){
@@ -105,6 +106,7 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
         calendar.set(Calendar.HOUR_OF_DAY, cut(timeView.text.toString())[0].toInt())
         calendar.set(Calendar.MINUTE, cut(timeView.text.toString())[1].toInt())
         calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND,0)
         val days = note[position.minus(1)].days
         if(days.equals("")){
             Log.d("now",now.timeInMillis.toString())
@@ -115,8 +117,9 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
             calendar = getNextAlarmCalendar(position-1)
             alarm.setAlarm(calendar,context)
         }
-        val differenceInMillis = calendar.timeInMillis - now.timeInMillis
-        Toast.makeText(context, "Alarm włączy się za ${(differenceInMillis/3600000)+1} godzin i ${(((differenceInMillis/60000)+1)%60)} minut", Toast.LENGTH_LONG).show()
+        val differenceInMinutes =  TimeUnit.MILLISECONDS.toMinutes(calendar.timeInMillis - now.timeInMillis) +1
+
+        Toast.makeText(context, "Alarm włączy się za ${differenceInMinutes/60} godzin i ${differenceInMinutes%60} minut", Toast.LENGTH_LONG).show()
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
     }
     fun alarmOff(position: Int, alarm: AlarmM){
