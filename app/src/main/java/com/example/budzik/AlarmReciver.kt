@@ -17,6 +17,7 @@ class AlarmReciver : BroadcastReceiver() {
             Log.d("AlarmReceiverOneTime","jest")
             intentService.putExtra("oneTime",intent.getStringExtra("oneTime"))
         }
+        intentService.putExtra("soundName",intent.getStringExtra("soundName"))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context!!.startForegroundService(intentService)
         } else {

@@ -1,6 +1,6 @@
 package com.example.budzik
 
-class Table {
+class AlarmClockTableRow {
     var id: Int = -1
     var time: String =""
     var days:String=""

@@ -12,13 +12,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.layout_alarm.view.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Table>):RecyclerView.Adapter<MyViewHolder>(){
+class MyAdapter(private val context: Context, private val db:SQLiteDatabase, private val note:ArrayList<AlarmClockTableRow>):RecyclerView.Adapter<MyViewHolder>(){
 
 
 
@@ -40,7 +39,7 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
         val on_off = holder.view.switch1
         val context:Context = holder.view.context
         val alarm = AlarmM()
-        timeView.setText(note[holder.adapterPosition].time)
+        timeView.text = note[holder.adapterPosition].time
         if(note[holder.adapterPosition].isActive.equals("true")) on_off.isChecked=true
        else if(note[holder.adapterPosition].isActive.equals("false")) on_off.isChecked=false
 
@@ -60,22 +59,19 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
             intent.putExtra("is_active",note[holder.adapterPosition].isActive)
             context.startActivity(intent)}
 //usuwanie
-        timeView.setOnLongClickListener(object : View.OnLongClickListener{
-            override fun onLongClick(v: View?): Boolean {
-                on_off.isChecked = false
-                alarmOff(holder.adapterPosition.plus(1),alarm)
-                db.delete(TableInfo.TABLE_NAME,BaseColumns._ID+ "=?", arrayOf(note[holder.adapterPosition].id.toString()))
-                note.removeAt(holder.adapterPosition)
-                notifyItemRemoved(holder.adapterPosition)
-                if(note.size==0){
-                    val intent = Intent(context, MainActivity::class.java )
-                    context.startActivity(intent)
-                }
-
-                return true
+        timeView.setOnLongClickListener {
+            on_off.isChecked = false
+            alarmOff(holder.adapterPosition.plus(1),alarm)
+            db.delete(TableInfo.TABLE_NAME,BaseColumns._ID+ "=?", arrayOf(note[holder.adapterPosition].id.toString()))
+            note.removeAt(holder.adapterPosition)
+            notifyItemRemoved(holder.adapterPosition)
+            if(note.size==0){
+                val intent = Intent(context, MainActivity::class.java )
+                context.startActivity(intent)
             }
 
-        })
+            true
+        }
 //on/off switche
 
             on_off.setOnClickListener {
@@ -89,13 +85,12 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
 
     }
 
-    fun cut(str:String): List<String> {
+    private fun cut(str:String): List<String> {
         val delim =":"
-        val list = str.split(delim)
-        return list
+        return str.split(delim)
     }
 
-    fun alarmOn(timeView: TextView, position: Int, alarm: AlarmM){
+    private fun alarmOn(timeView: TextView, position: Int, alarm: AlarmM){
         val dbHelper = DataBaseHelper(context)
         val db = dbHelper.writableDatabase
         val value = ContentValues()
@@ -112,17 +107,17 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
             Log.d("now",now.timeInMillis.toString())
             Log.d("ustawione",calendar.timeInMillis.toString())
             if(calendar.timeInMillis < now.timeInMillis) calendar.add(Calendar.DAY_OF_YEAR,1)
-            alarm.setOneTimeAlarm(calendar,context,position.toString())
+            alarm.setOneTimeAlarm(calendar,context,position.toString(),note[position.minus(1)].sound_name)
         }else{
             calendar = getNextAlarmCalendar(position-1)
-            alarm.setAlarm(calendar,context)
+            alarm.setAlarm(calendar,context,note[position.minus(1)].sound_name)
         }
         val differenceInMinutes =  TimeUnit.MILLISECONDS.toMinutes(calendar.timeInMillis - now.timeInMillis) +1
 
         Toast.makeText(context, "Alarm włączy się za ${differenceInMinutes/60} godzin i ${differenceInMinutes%60} minut", Toast.LENGTH_LONG).show()
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
     }
-    fun alarmOff(position: Int, alarm: AlarmM){
+    private fun alarmOff(position: Int, alarm: AlarmM){
         val dbHelper = DataBaseHelper(context)
         val db = dbHelper.writableDatabase
         val value = ContentValues()
@@ -131,7 +126,7 @@ class MyAdapter(val context: Context,val db:SQLiteDatabase,val note:ArrayList<Ta
        // Toast.makeText(context, "OFF", Toast.LENGTH_SHORT).show()
         db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID +"=?", arrayOf(position.toString()))
     }
-    fun getNextAlarmCalendar(position: Int): Calendar {
+    private fun getNextAlarmCalendar(position: Int): Calendar {
 
         val now = Calendar.getInstance()
         val pattern = note[position].days

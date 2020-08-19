@@ -5,24 +5,20 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.hardware.camera2.CameraManager
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.BaseColumns
 import android.util.Log
-import androidx.activity.result.ActivityResultCallback
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
-import java.util.jar.Manifest
-import kotlin.coroutines.CoroutineContext
+
 
 class MyService: Service() {
 
@@ -38,8 +34,15 @@ class MyService: Service() {
             permissionGranded = true
             cam = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         }
+        mediaPlayer = when(val soundName = intent?.getStringExtra("soundName")){
+            "buzzer" -> MediaPlayer.create(applicationContext,R.raw.buzzer)
+            "forstarr" -> MediaPlayer.create(applicationContext,R.raw.forstarr)
+            "guitar" -> MediaPlayer.create(applicationContext,R.raw.guitar)
+            "osmium" -> MediaPlayer.create(applicationContext,R.raw.osmium)
+            "plusii" -> MediaPlayer.create(applicationContext,R.raw.plusii)
+            else -> MediaPlayer.create(applicationContext,Uri.parse(applicationContext.dataDir.path+"/sounds/"+soundName))
+        }
 
-        mediaPlayer = MediaPlayer.create(applicationContext,R.raw.buzzer)
         v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if(!mediaPlayer.isPlaying){
             val notificationIntent = Intent(this, AlarmClockActivity::class.java)
@@ -102,7 +105,7 @@ class MyService: Service() {
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
-    fun vibrate(v:Vibrator)
+    private fun vibrate(v:Vibrator)
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             v.vibrate(VibrationEffect.createWaveform(longArrayOf(200,300,400,500),0))

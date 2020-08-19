@@ -13,11 +13,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.alarm_clock_activity.*
 import java.util.*
+import kotlin.math.abs
+import kotlin.math.absoluteValue
 
 class AlarmClockActivity: AppCompatActivity(), SensorEventListener {
     private lateinit var mySensorManager: SensorManager
     private lateinit var accelerometer: Sensor
     private lateinit var gyroscope: Sensor
+    private lateinit var light_sensor: Sensor
+    private var light_value:Float=0F
+    private var gyroscope_list= arrayListOf<Float>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.alarm_clock_activity)
@@ -29,7 +34,9 @@ class AlarmClockActivity: AppCompatActivity(), SensorEventListener {
         if(mySensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null){
             gyroscope = mySensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         }
-
+        if(mySensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null){
+            light_sensor = mySensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
+        }
 
 
         off_BT.setOnClickListener {
@@ -43,8 +50,8 @@ class AlarmClockActivity: AppCompatActivity(), SensorEventListener {
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                MyService.mediaPlayer.setVolume((progress/10.0).toFloat(),
-                    (progress/10.0).toFloat()
+                MyService.mediaPlayer.setVolume((progress/20.0).toFloat(),
+                    (progress/20.0).toFloat()
                 )
             }
 
@@ -65,14 +72,14 @@ class AlarmClockActivity: AppCompatActivity(), SensorEventListener {
         startActivity(Intent(applicationContext,MainActivity::class.java))
         super.onBackPressed()
     }
-    fun nap(){
+    private fun nap(){
         stopService(Intent(this, MyService::class.java))
         val alarmManager = AlarmM()
         val c = Calendar.getInstance()
         c.set(Calendar.SECOND, 0)
         c.set(Calendar.MILLISECOND,0)
         c.add(Calendar.MINUTE,1)
-        alarmManager.setAlarm(c, applicationContext)
+        alarmManager.setAlarm(c, applicationContext, "buzzer")
         Toast.makeText(applicationContext,"Ustawiono drzemkę",Toast.LENGTH_SHORT).show()
     }
 
@@ -83,18 +90,34 @@ class AlarmClockActivity: AppCompatActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         when(event?.sensor?.type){
             Sensor.TYPE_ACCELEROMETER -> {
-                if(Math.abs(event.values[0])<0.5 && Math.abs(event.values[1])<0.5 &&
+
+                if(abs(event.values[0]) <0.5 && abs(event.values[1]) <0.5 &&
                     event.values[2]<-9.5){
                     Log.d("xyz","${event.values[0]}, ${event.values[1]}, ${event.values[2]}")
                     nap()
                 }
             }
             Sensor.TYPE_GYROSCOPE -> {
-                if(Math.abs(event.values[0])>1 || Math.abs(event.values[1])>1 || Math.abs(event.values[2])>1){
-                    Log.d("gyroX","${event.values[0]}")
-                    Log.d("gyroY","${event.values[1]}")
+                if(abs(event.values[2]) >3){
+                    gyroscope_list.add(event.values[2].absoluteValue)
                     Log.d("gyroZ","${event.values[2]}")
+                    Log.d("gyros", gyroscope_list.size.toString())
+                    Log.d("gyros_2", (gyroscope_list.sum()).toString())
+                    if (gyroscope_list.size==5){
+                        if (gyroscope_list.sum()/gyroscope_list.size>7){
+                            stopService(Intent(this, MyService::class.java))
+                            Log.d("gyros_stop","stop")
+                        }
+                        gyroscope_list.clear()
+                    }
                 }
+            }
+            Sensor.TYPE_LIGHT->{
+                light_value=event.values[0]
+                if (light_value>1000) light_value=999F
+                seekBar.progress = 20/((light_value) * (20-1) / (1000-0) + 1).toInt()
+               // lightval.text=seekBar.progress.toString()
+                lightval.text = light_value.toString()
             }
         }
 
@@ -103,7 +126,8 @@ class AlarmClockActivity: AppCompatActivity(), SensorEventListener {
     override fun onStart() {
         super.onStart()
         mySensorManager.registerListener(this, accelerometer, 10000)
-        mySensorManager.registerListener(this, gyroscope, 10000)
+        mySensorManager.registerListener(this, gyroscope, 500000)
+        mySensorManager.registerListener(this, light_sensor, 500000)
     }
 
     override fun onStop() {

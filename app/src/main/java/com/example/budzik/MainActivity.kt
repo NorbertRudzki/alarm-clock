@@ -2,18 +2,14 @@ package com.example.budzik
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 
-//todo wybor dzwieku do danego alarmu
-//todo nagrywanie mikrofonem i dodawanie do listy dzwiekow do wyboru
-//todo latarka
-//todo sensory
+
 class MainActivity : AppCompatActivity() {
-    private val db_data = ArrayList<Table>()
+    private val db_data = ArrayList<AlarmClockTableRow>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         if (cursor.count>0){
             cursor.moveToFirst()
             while (!cursor.isAfterLast){
-                val from_db = Table()
+                val from_db = AlarmClockTableRow()
                 from_db.id = cursor.getInt(0)
                 from_db.time = cursor.getString(1)
                 from_db.days = cursor.getString(2)
