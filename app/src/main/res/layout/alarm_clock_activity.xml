@@ -2,11 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/alarmClockLL"
         android:layout_width="409dp"
         android:layout_height="729dp"
         android:orientation="vertical"
@@ -16,14 +16,16 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:layout_marginTop="100dp"
             android:id="@+id/off_BT"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
             android:text="Wyłącz" />
 
         <Button
             android:id="@+id/nap_BT"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Drzemka" />
@@ -32,9 +34,9 @@
             android:id="@+id/seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
             android:max="20"
-            android:progress="5"
-            android:layout_marginHorizontal="15dp"/>
+            android:progress="10" />
 
         <TextView
             android:id="@+id/lightval"
