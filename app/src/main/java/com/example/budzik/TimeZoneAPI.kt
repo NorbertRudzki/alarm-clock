@@ -8,7 +8,10 @@ import java.io.IOException
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
+/** Klasa odpowiedzialna za komunikację z API TimeZoneDB */
 class TimeZoneAPI {
+
+    /** Zwraca tablice bajtów z wynikiem zapytania */
     fun getUrlBytes(urlSpec: String): ByteArray {
         val url = URL(urlSpec)
         val connection = url.openConnection() as HttpsURLConnection
@@ -36,10 +39,13 @@ class TimeZoneAPI {
         }
     }
 
+    /** Tworzy łańcuch znaków z tablicy bajtów
+     */
     fun getUrlString(urlSpec: String): String {
         return String(getUrlBytes(urlSpec))
     }
 
+    /** Zwraca komunikat będący wynikiem zapytania do API TimeZoneDB z podaną lokalizacją*/
     fun getJSONString(latitude: String, longitude: String): String {
         var jsonString = "Zle"
         try {

@@ -24,6 +24,10 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
+/**
+ * Klasa odpowiedzialna za wczytywanie danych z bazy,
+ * pobranie współrzędnych GPS, ustawienie strefy czasowej
+ */
 class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks {
     companion object {
         var timeZone: TimeZone = TimeZone.getDefault()
@@ -38,6 +42,7 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks {
     private var longitude: String = ""
     private var latitude: String = ""
 
+    /** Pobiera dane o lokalizacji, sprawdza upranienia do GPS i pobiera dane z bazy danych */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -99,31 +104,38 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks {
 
         cursor.close()
         recycle_view.layoutManager = LinearLayoutManager(applicationContext)
-        recycle_view.adapter = MyAdapter(applicationContext, db, db_data)
+        recycle_view.adapter = MainAdapter(applicationContext, db, db_data)
 
     }
 
+    /** Nawiązuje połączenie z API Googla od lokalizacji*/
     override fun onStart() {
         super.onStart()
         googleApiClient.connect()
     }
 
+    /** Kończy połączenie z API Googla od lokalizacji*/
     override fun onStop() {
         super.onStop()
         googleApiClient.disconnect()
     }
 
+    /** Wyświetla tekst o braku ustawionych alarmów, gdy baza danych nie ma rekordów */
     override fun onResume() {
         super.onResume()
         if (db_data.size == 0) alarm_info.visibility = View.VISIBLE
         else alarm_info.visibility = View.GONE
     }
 
+    /** Zmienia aktywność przy naciśnięciu przycisku "dodaj" */
     fun intentToSetAlarm(v: View) {
         val intent = Intent(applicationContext, SetAlarmActivity::class.java)
         startActivity(intent)
     }
 
+    /** Po naciśnięciu przycisku "wstecz" z poziomu głównej aktywności
+     * powoduje wyjście z aplikacji.
+     */
     override fun onBackPressed() {
         val intent = Intent(Intent.ACTION_MAIN)
         intent.addCategory(Intent.CATEGORY_HOME)
@@ -131,6 +143,7 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks {
         startActivity(intent)
     }
 
+    /** Sprawdza stan nadanych uprawnień */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -146,6 +159,10 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    /**
+     * Wykonuje zapytanie do API i ustawia wartość strefy czasowej
+     * na podstawie podanych współrzędnych
+     */
     fun updateValue(location: Location) {
         latitude = location.latitude.toString()
         longitude = location.longitude.toString()
@@ -167,6 +184,7 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks {
         }
     }
 
+    /** Sprawdzenie aktualnej lokalizacji */
     override fun onConnected(p0: Bundle?) {
         fusedlocation = LocationServices.getFusedLocationProviderClient(applicationContext)
         if (ActivityCompat.checkSelfPermission(applicationContext, ACCESS_FINE_LOCATION)

@@ -1,5 +1,6 @@
 package com.example.budzik
 
+/** Klasa reprezentująca komunikat zwrócony przez API TimeZoneDB*/
 data class JSONTimeZone(
     val abbreviation: String,
     val countryCode: String,

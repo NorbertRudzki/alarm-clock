@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
 
+/** Odpowiada za odtwarzanie dźwięków alarmu, wibracje oraz miganie latarką */
 class AlarmClockService : Service() {
 
     companion object {
@@ -29,6 +30,10 @@ class AlarmClockService : Service() {
     private lateinit var cam: CameraManager
     private var permissionGranded = false
 
+    /**
+     * Włącza odtwarzanie dźwięku, wibracje, mruganie latarką i ustawia powiadomienie,
+     * które po kliknięciu otwiera aktywność AlarmClockActivity
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (ContextCompat.checkSelfPermission(
                 applicationContext,
@@ -106,9 +111,11 @@ class AlarmClockService : Service() {
         return START_STICKY
     }
 
+    /** Wyłącza odtwarzanie dźwięku, wibracje, mruganie latarką */
     override fun onDestroy() {
         mediaPlayer.stop()
         vibrator.cancel()
+
         if (permissionGranded) {
             scope.cancel()
             try {
@@ -124,6 +131,9 @@ class AlarmClockService : Service() {
         return null
     }
 
+    /**
+     * Uruchamia wibracje
+     */
     private fun vibrate(v: Vibrator) {
             v.vibrate(VibrationEffect.createWaveform(longArrayOf(200, 300, 400, 500), 0))
     }

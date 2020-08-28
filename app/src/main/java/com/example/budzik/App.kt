@@ -5,6 +5,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 
+/**
+ * Klasa odpowiedzialna za stworzenie kanału dla powiadomienia
+ */
 class App : Application() {
     companion object {
         const val CHANNEL_ID = "exampleService"

@@ -24,6 +24,7 @@ import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
 
+/** Aktywność odpowiedzialna za ustawienie opcji budzika i zapisanie ich do bazy danych */
 class SetAlarmActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
     private val REQUEST_PERMISSION_CAMERA = 1
     private val REQUEST_PERMISSION_RECORD_AUDIO = 2
@@ -31,6 +32,9 @@ class SetAlarmActivity : AppCompatActivity(), ActivityCompat.OnRequestPermission
     private var mediaRecorder: MediaRecorder? = null
     private lateinit var model: SoundViewModel
 
+    /**
+     * Odpowiada za obsługę przycisków, zmianę ustawień budzika
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.alarm_set)
@@ -144,6 +148,7 @@ class SetAlarmActivity : AppCompatActivity(), ActivityCompat.OnRequestPermission
         }
     }
 
+    /** Wyświetla TimePickera i pozwala na ustawienie wybranego czasu */
     @SuppressLint("SetTextI18n")
     fun chooseTime() {
         time_text.setOnClickListener {
@@ -151,7 +156,7 @@ class SetAlarmActivity : AppCompatActivity(), ActivityCompat.OnRequestPermission
             calendar.timeZone = MainActivity.timeZone
             val timePickerDialog = TimePickerDialog(
                 this,
-                TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
+                { view, hourOfDay, minute ->
                     if (minute < 10) {
                         time_text.text = "$hourOfDay:0$minute"
                     } else {
@@ -192,6 +197,7 @@ class SetAlarmActivity : AppCompatActivity(), ActivityCompat.OnRequestPermission
         }
     }
 
+    /** Zwraca wzorzec reprezentujący ustawione dni powtarzania alarmu*/
     fun getRepeatingDays(): String {
         var pattern = ""
 
@@ -206,7 +212,7 @@ class SetAlarmActivity : AppCompatActivity(), ActivityCompat.OnRequestPermission
         return pattern
     }
 
-
+    /** sprawdza stan nadanych uprawnień*/
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

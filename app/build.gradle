@@ -1,6 +1,20 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.jetbrains.dokka'
+
+dokka {
+    outputFormat = 'html' // use 'javadoc' to get standard java docs
+    outputDirectory = "$buildDir/javadoc"
+
+    configuration {
+        includeNonPublic = false
+        skipEmptyPackages = true
+        skipDeprecated = true
+        reportUndocumented = true
+        jdkVersion = 8
+    }
+}
 
 android {
     compileSdkVersion 29
@@ -23,6 +37,11 @@ android {
         }
     }
 
+}
+
+task DocsByDokka (type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = "html"
+    outputDirectory = "$buildDir/dokka"
 }
 
 dependencies {

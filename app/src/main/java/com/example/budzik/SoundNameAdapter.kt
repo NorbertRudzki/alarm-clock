@@ -7,6 +7,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
+/** Klasa odpowiedzialna za poprawną prezentację dostępnych dźwięków budzika
+ *  z wykorzystaniem RecyclerView oraz obsługę zdarzeń z interfejsu graficznego
+ */
 class SoundNameAdapter(
     private val list: ArrayList<String>, private val model: SoundViewModel, private val file: File
 ) : RecyclerView.Adapter<SoundNameAdapter.MyViewHolder>() {

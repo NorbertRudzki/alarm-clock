@@ -18,21 +18,22 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-class MyAdapter(
+/** Klasa odpowiedzialna za poprawną prezentację danych z bazy danych z wykorzystaniem RecyclerView
+ * oraz obsługę zdarzeń z interfejsu graficznego
+ */
+class MainAdapter(
     private val context: Context,
     private val db: SQLiteDatabase,
     private val dataBaseList: ArrayList<AlarmClockTableRow>
-) : RecyclerView.Adapter<MyViewHolder>() {
+) : RecyclerView.Adapter<MainAdapter.MyViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val contact = layoutInflater.inflate(R.layout.alarm_row, parent, false)
-        return MyViewHolder(contact)
+        val row = layoutInflater.inflate(R.layout.alarm_row, parent, false)
+        return MyViewHolder(row)
     }
 
     override fun getItemCount(): Int {
-     //   val cursor = db.query(TableInfo.TABLE_NAME, null, null, null, null, null, null)
-     //   val liczbawierszy = cursor.count
-     //   cursor.close()
         return dataBaseList.size
     }
 
@@ -100,10 +101,7 @@ class MyAdapter(
         }
     }
 
-    private fun cut(str: String): List<String> {
-        val delim = ":"
-        return str.split(delim)
-    }
+    private fun cut(str: String): List<String> = str.split(":")
 
     private fun alarmOn(timeView: TextView, position: Int, alarm: AlarmClockManager) {
         val dbHelper = DataBaseHelper(context)
@@ -184,6 +182,7 @@ class MyAdapter(
         }
         return days.min()!!
     }
+
+    inner class MyViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 }
 
-class MyViewHolder(val view: View) : RecyclerView.ViewHolder(view)

@@ -7,11 +7,12 @@ import android.content.Intent
 import android.util.Log
 import java.util.*
 
+/** Klasa odpowiedzialna za ustawianie alarmów */
 class AlarmClockManager {
     private var alarmMgr: AlarmManager? = null
     private lateinit var alarmIntent: PendingIntent
 
-    // alarm cykliczny, ktory nie dezaktywuje sie po zadzwonieniu i ustawi sie na kolejna date
+    /** Ustawia alarm cykliczny, który nie dezaktywuje się po zadzwonieniu i ustawi się na kolejną date */
     fun setAlarm(calendar:Calendar,context: Context, soundName: String) {
         alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmIntent = Intent(context, AlarmReciver::class.java)
@@ -26,7 +27,7 @@ class AlarmClockManager {
             alarmIntent)
     }
 
-    // alarm dezaktywuje sie po zadzwonieniu
+    /** Ustawia alarm jednorazowy, który dezaktywuje się po zadzwonieniu*/
     fun setOneTimeAlarm(calendar:Calendar,context: Context, ID: String, soundName: String) {
         alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmIntent = Intent(context, AlarmReciver::class.java).putExtra("oneTime", ID)
@@ -41,6 +42,7 @@ class AlarmClockManager {
             alarmIntent)
     }
 
+    /** Anuluje zaplanowany wcześniej alarm */
     fun cancelAlarm(){
         alarmMgr?.cancel(alarmIntent)
         Log.d("Alarm","canceled")
